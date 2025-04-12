@@ -261,21 +261,32 @@ const GameCanvas = () => {
         </PixelBorder>
       </div>
       
-      {/* Crypto currency fusion display */}
+      {/* Fusion progress indicator */}
       {gameActive && (
         <div className="mt-8 bg-black bg-opacity-30 p-4 rounded-lg">
           <h3 className="font-pixel text-white text-sm mb-2">QUANTUM+ FUSION EVENT</h3>
-          <div className="flex justify-center items-center space-x-2">
-            <div className="bg-[#F7931A] p-2 rounded-full text-white font-bold">₿</div>
-            <div className="bg-[#627EEA] p-2 rounded-full text-white font-bold">Ξ</div>
-            <div className="bg-[#C2A633] p-2 rounded-full text-white font-bold">Ð</div>
-            <div className="bg-[#F3BA2F] p-2 rounded-full text-white font-bold">BNB</div>
-            <div className="w-24 h-6 bg-[#8D6E63] relative">
-              <div className="absolute top-1 w-full h-4 bg-[#6D4C41]"></div>
+          <div className="flex flex-col items-center">
+            <div className="flex justify-center items-center space-x-2 mb-2">
+              <div className="bg-[#F7931A] p-2 rounded-full text-white font-bold">₿</div>
+              <div className="bg-[#627EEA] p-2 rounded-full text-white font-bold">Ξ</div>
+              <div className="bg-[#C2A633] p-2 rounded-full text-white font-bold">Ð</div>
+              <div className="bg-[#F3BA2F] p-2 rounded-full text-white font-bold">BNB</div>
+              <div className="w-24 h-6 bg-[#8D6E63] relative">
+                <div className="absolute top-1 w-full h-4 bg-[#6D4C41]"></div>
+              </div>
+              <div className="bg-[#9C27B0] p-2 rounded-full text-white font-bold animate-pulse">Q+</div>
             </div>
-            <div className="bg-[#9C27B0] p-2 rounded-full text-white font-bold animate-pulse">Q+</div>
+            <p className="font-retro text-white text-xs mb-2">Tap coins to trigger Quantum+ fusion!</p>
+            
+            {/* Progress bar */}
+            <div className="w-full bg-gray-800 h-4 rounded-full overflow-hidden">
+              <div 
+                className="bg-gradient-to-r from-[#F7931A] via-[#627EEA] to-[#9C27B0] h-full transition-all duration-300" 
+                style={{ width: `${(totalClicks / 15) * 100}%` }}
+              ></div>
+            </div>
+            <p className="font-pixel text-white text-xs mt-1">{totalClicks}/15 taps until fusion</p>
           </div>
-          <p className="font-retro text-white text-xs mt-2">Coins enter the pipe and merge into Quantum+ super currency!</p>
         </div>
       )}
     </div>
