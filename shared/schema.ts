@@ -20,9 +20,9 @@ export const domains = pgTable("domains", {
   id: serial("id").primaryKey(),
   name: text("name").notNull().unique(),
   price: integer("price").notNull(),
-  currentBid: integer("current_bid").default(0),
+  currentBid: integer("current_bid").default(0).notNull(),
   timeLeft: integer("time_left").notNull(),
-  bidCount: integer("bid_count").default(0),
+  bidCount: integer("bid_count").default(0).notNull(),
   ownerId: integer("owner_id").references(() => users.id),
   description: text("description").notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull()

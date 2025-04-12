@@ -4,6 +4,7 @@ import PixelButton from './PixelButton';
 import PixelBorder from './PixelBorder';
 import Coin from './Coin';
 import GameCanvas from './GameCanvas';
+import AIHints from './AIHints';
 
 const BlockchainGame = () => {
   const { 
@@ -103,6 +104,13 @@ const BlockchainGame = () => {
             {/* Game floor */}
             <div className="absolute bottom-0 left-0 right-0 h-16 brick"></div>
           </div>
+          
+          {/* AI Hints Panel */}
+          {gameActive && (
+            <div className="mt-8">
+              <AIHints />
+            </div>
+          )}
           
           <div className="mt-8">
             <h3 className="font-pixel text-white text-lg mb-4">BLOCKCHAIN LEADERBOARD</h3>

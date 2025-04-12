@@ -127,7 +127,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       // Check if bid is higher than current bid
-      if (bidData.bidAmount <= domain.currentBid) {
+      if (domain.currentBid !== null && bidData.bidAmount <= domain.currentBid) {
         return res.status(400).json({ message: "Bid must be higher than current bid" });
       }
       
