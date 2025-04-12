@@ -9,7 +9,7 @@ const Footer = () => {
           <div className="mb-6 md:mb-0">
             <h2 className="font-pixel text-white text-xl">SUPER<span className="text-[#FBD000]">CHAIN</span>BROS</h2>
             <p className="font-retro text-white mt-2">The ultimate Web3 gaming experience!</p>
-            
+
             <div className="flex space-x-4 mt-4">
               <a href="#" className="text-white hover:text-[#FBD000]">
                 <span className="font-retro text-lg flex items-center">
@@ -26,7 +26,7 @@ const Footer = () => {
               </a>
             </div>
           </div>
-          
+
           <div className="grid grid-cols-2 md:grid-cols-3 gap-6 text-center md:text-left">
             <div>
               <h3 className="font-pixel text-[#FBD000] text-sm mb-3">PLAY</h3>
@@ -36,7 +36,7 @@ const Footer = () => {
                 <li><span className="hover:text-[#FBD000] cursor-pointer">Tournaments</span></li>
               </ul>
             </div>
-            
+
             <div>
               <h3 className="font-pixel text-[#FBD000] text-sm mb-3">DOMAINS</h3>
               <ul className="font-retro text-white space-y-2">
@@ -45,7 +45,7 @@ const Footer = () => {
                 <li><span className="hover:text-[#FBD000] cursor-pointer">Subdomains</span></li>
               </ul>
             </div>
-            
+
             <div>
               <h3 className="font-pixel text-[#FBD000] text-sm mb-3">REWARDS</h3>
               <ul className="font-retro text-white space-y-2">
@@ -56,10 +56,11 @@ const Footer = () => {
             </div>
           </div>
         </div>
-        
+
         <div className="border-t border-white border-opacity-20 mt-8 pt-8 text-center">
           <p className="font-retro text-white">&copy; 2023 SUPERCHAINBROS | All Rights Reserved</p>
           <p className="font-retro text-white text-sm mt-2">Not affiliated with Nintendo or Mario Bros.</p>
+          <p className="font-retro text-white text-xs mt-2">Created by David Sanders</p>
         </div>
       </div>
     </footer>
