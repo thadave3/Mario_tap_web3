@@ -172,6 +172,18 @@
     animation: sprite-run 0.8s steps(3) infinite;
   }
   
+  .animate-float-up {
+    animation: float-up 1s ease-out forwards;
+  }
+  
+  .animate-blink {
+    animation: blink 0.5s alternate infinite;
+  }
+  
+  .animate-tunnel-travel {
+    animation: tunnel-travel 3s ease-in-out;
+  }
+  
   @keyframes coin-spin {
     0% { transform: rotateY(0deg); }
     100% { transform: rotateY(360deg); }
@@ -180,6 +192,17 @@
   @keyframes float-bob {
     0%, 100% { transform: translateY(0); }
     50% { transform: translateY(-10px); }
+  }
+  
+  @keyframes float-up {
+    0% { 
+      transform: translateY(0) scale(1);
+      opacity: 1;
+    }
+    100% { 
+      transform: translateY(-50px) scale(1.5);
+      opacity: 0;
+    }
   }
   
   @keyframes jump {
@@ -196,5 +219,22 @@
   @keyframes flash {
     0%, 50%, 100% { background-color: hsl(var(--question-yellow)); }
     25%, 75% { background-color: hsl(42, 100%, 45%); }
+  }
+  
+  @keyframes blink {
+    0% { opacity: 0.5; }
+    100% { opacity: 1; }
+  }
+  
+  @keyframes tunnel-travel {
+    0% { 
+      transform: translateX(0) scale(1) rotate(0deg);
+    }
+    50% { 
+      transform: translateX(120px) scale(0.5) rotate(180deg);
+    }
+    100% { 
+      transform: translateX(240px) scale(1) rotate(360deg);
+    }
   }
 }

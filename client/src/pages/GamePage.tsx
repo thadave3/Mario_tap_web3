@@ -37,7 +37,7 @@ const GamePage = () => {
         backgroundSize: '100px 100px'
       }}>
         <div className="max-w-7xl mx-auto">
-          <h1 className="font-pixel text-center text-3xl text-[#FBD000] mb-8">BLOCKCHAIN MINI-GAME</h1>
+          <h1 className="font-pixel text-center text-3xl text-[#FBD000] mb-8">QUANTUM+ CRYPTO FUSIONS</h1>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="md:col-span-2">
@@ -117,27 +117,28 @@ const GamePage = () => {
                 <div className="space-y-4">
                   <div>
                     <h3 className="font-retro text-lg text-[#E52521]">1. START MINING</h3>
-                    <p className="font-retro">Click the Start Mining button to begin the game. You have 60 seconds to mine as many coins as possible!</p>
+                    <p className="font-retro">Click the Start Mining button to begin the game. You have 60 seconds to collect different crypto coins!</p>
                   </div>
                   
                   <div>
-                    <h3 className="font-retro text-lg text-[#43B047]">2. TAP THE COIN</h3>
-                    <p className="font-retro">Click on the floating coin to mine blockchain coins. Each tap earns you coins based on your Power level.</p>
+                    <h3 className="font-retro text-lg text-[#43B047]">2. TAP FOR COINS</h3>
+                    <p className="font-retro">Tap the floating coin to collect various cryptocurrencies. Watch for coin animations and power-ups!</p>
                   </div>
                   
                   <div>
-                    <h3 className="font-retro text-lg text-[#FBD000]">3. UPGRADE ABILITIES</h3>
-                    <p className="font-retro">Use your earned coins to upgrade your mining abilities:</p>
+                    <h3 className="font-retro text-lg text-[#FBD000]">3. QUANTUM FUSION</h3>
+                    <p className="font-retro">Collect enough coins to trigger the special Quantum+ Fusion event where all cryptocurrencies combine!</p>
                     <ul className="list-disc list-inside font-retro ml-4">
-                      <li>Power: More coins per tap</li>
-                      <li>Speed: Faster tapping</li>
-                      <li>Luck: Chance for bonus coins</li>
+                      <li>Bitcoin (₿): Base value coins</li>
+                      <li>Ethereum (Ξ): Speed boosters</li>
+                      <li>Dogecoin (Ð): Luck multipliers</li>
+                      <li>BNB: Special power-ups</li>
                     </ul>
                   </div>
                   
                   <div>
-                    <h3 className="font-retro text-lg text-[#5C94FC]">4. COMPETE</h3>
-                    <p className="font-retro">Get on the leaderboard with the highest score to earn special rewards and NFTs!</p>
+                    <h3 className="font-retro text-lg text-[#9C27B0]">4. SUPER CURRENCY</h3>
+                    <p className="font-retro">Once the Quantum+ event is triggered, your coins become super-charged for massive rewards!</p>
                   </div>
                 </div>
                 

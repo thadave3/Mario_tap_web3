@@ -81,7 +81,7 @@ const BlockchainGame = () => {
     }}>
       <div className="max-w-7xl mx-auto">
         <div className="bg-black bg-opacity-70 p-8 rounded-lg">
-          <h2 className="font-pixel text-center text-2xl md:text-3xl text-[#FFCF40] mb-8">BLOCKCHAIN MINI-GAME</h2>
+          <h2 className="font-pixel text-center text-2xl md:text-3xl text-[#FFCF40] mb-8">CRYPTO SUPER COINS</h2>
           
           <div className="game-window mx-auto max-w-2xl bg-[#5C94FC] p-4 relative h-96">
             {/* Game UI elements */}
