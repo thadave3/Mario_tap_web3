@@ -47,8 +47,55 @@ const GameCanvas = () => {
   };
   
   // Handle coin click with improved feedback
+  // Function to handle fusion event completion
+  const handleFusionComplete = () => {
+    setShowFusion(false);
+    
+    // Give a special bonus for completing fusion
+    const quantumBonus = 50 * powerLevel * luckLevel;
+    incrementScore(quantumBonus);
+    
+    // Show a special popup for the quantum bonus
+    setPopupCounter(prev => prev + 1);
+    const quantumId = popupCounter + 1;
+    setPopupRewards(prev => [
+      ...prev, 
+      { 
+        id: quantumId, 
+        value: quantumBonus, 
+        x: 50, 
+        y: 50, 
+        type: 'quantum' 
+      }
+    ]);
+    
+    // Remove quantum popup after animation
+    setTimeout(() => {
+      setPopupRewards(prev => prev.filter(r => r.id !== quantumId));
+    }, 2000);
+  };
+
+  // Check if we should trigger fusion event based on click count
+  useEffect(() => {
+    if (totalClicks >= 15 && gameActive && !showFusion) {
+      setShowFusion(true);
+      setTotalClicks(0);
+    }
+  }, [totalClicks, gameActive, showFusion]);
+  
+  // Reset fusion and click count when game starts/stops
+  useEffect(() => {
+    if (!gameActive) {
+      setShowFusion(false);
+      setTotalClicks(0);
+    }
+  }, [gameActive]);
+
   const handleCoinClick = () => {
     if (!gameActive) return;
+    
+    // Increment total clicks
+    setTotalClicks(prev => prev + 1);
     
     // Play coin sound
     coinSound.play().catch(e => console.log("Sound play error:", e));
@@ -68,6 +115,10 @@ const GameCanvas = () => {
       y = Math.random() * rect.height;
     }
     
+    // Determine crypto type randomly
+    const cryptoTypes = ['bitcoin', 'ethereum', 'dogecoin', 'bnb', 'coin'];
+    const cryptoType = cryptoTypes[Math.floor(Math.random() * cryptoTypes.length)];
+    
     // Show popup reward
     const baseValue = powerLevel;
     setPopupCounter(prev => prev + 1);
@@ -78,7 +129,7 @@ const GameCanvas = () => {
         value: baseValue, 
         x, 
         y, 
-        type: 'coin' 
+        type: cryptoType 
       }
     ]);
     
@@ -132,6 +183,8 @@ const GameCanvas = () => {
         return 'BNB';
       case 'bonus':
         return '+';
+      case 'quantum':
+        return 'Q+';
       default:
         return '$';
     }
@@ -139,6 +192,12 @@ const GameCanvas = () => {
 
   return (
     <div className="text-center">
+      {/* Crypto Fusion Animation - shows only when triggered */}
+      <CryptoFusion 
+        active={showFusion} 
+        onComplete={handleFusionComplete} 
+      />
+      
       <p className="font-pixel text-xl text-[#E52521] mb-4">TAP TO MINE CRYPTO COINS</p>
       
       <div className="relative mb-8 mx-auto w-32 h-32">
@@ -147,7 +206,8 @@ const GameCanvas = () => {
           <div 
             key={reward.id}
             className={`absolute font-pixel text-xl animate-float-up ${
-              reward.type === 'bonus' ? 'text-[#FFD700] font-bold' : 'text-[#FFFFFF]'
+              reward.type === 'bonus' ? 'text-[#FFD700] font-bold' : 
+              reward.type === 'quantum' ? 'text-[#9C27B0] font-bold text-2xl' : 'text-[#FFFFFF]'
             }`}
             style={{ 
               left: `${reward.x}px`, 
@@ -172,7 +232,7 @@ const GameCanvas = () => {
           >
             <circle cx="64" cy="64" r="60" fill="#FFCF40" stroke="#000" strokeWidth="4" />
             <circle cx="64" cy="64" r="50" fill="#FFDF80" />
-            <text x="64" y="75" textAnchor="middle" fill="#000" fontFamily="Press Start 2P" fontSize="24">$</text>
+            <text x="64" y="75" textAnchor="middle" fill="#000" fontFamily="Press Start 2P" fontSize="24">{totalClicks >= 10 ? "Q+" : "$"}</text>
             <circle cx="44" cy="45" r="5" fill="#FFFFFF" fillOpacity="0.7" />
           </svg>
         </div>
