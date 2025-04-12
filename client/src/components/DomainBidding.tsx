@@ -139,6 +139,10 @@ const DomainBidding = () => {
             VIEW ALL DOMAINS
           </PixelButton>
         </div>
+        
+        <div className="mt-16">
+          <Web3Expert />
+        </div>
       </div>
     </section>
   );

@@ -125,39 +125,7 @@ export async function getWeb3ExpertAdvice(
     // Run the assistant on the thread with specific parameters aligned with the assistant's configuration
     const run = await openai.beta.threads.runs.create(thread.id, {
       assistant_id: WEB3_EXPERT_ASSISTANT_ID,
-      model: "gpt-4o", // the newest OpenAI model is "gpt-4o" which was released May 13, 2024
       instructions: "You are addressing a user of a Mario-themed Web3 gaming platform. Keep your advice relevant to cryptocurrency, NFTs, and blockchain gaming. Explain concepts in simple terms.",
-      tools: [{
-        type: "function",
-        function: {
-          name: "getContextFromWebsite",
-          description: "Gets context from the Mario blockchain website",
-          parameters: {
-            type: "object",
-            properties: {
-              website_url: {
-                type: "string",
-                description: "The URL of the website"
-              },
-              issue_description: {
-                type: "string",
-                description: "Description of the Web3 issue or question"
-              },
-              additional_context: {
-                type: "string",
-                description: "Any additional context about the user's blockchain gaming experience"
-              }
-            },
-            required: ["website_url", "issue_description"]
-          }
-        }
-      }],
-      tool_choice: {
-        type: "function",
-        function: {
-          name: "getContextFromWebsite"
-        }
-      },
     });
 
     // Wait for the run to complete
