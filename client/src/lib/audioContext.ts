@@ -1,4 +1,3 @@
-
 // Audio context manager for the game
 let audioContext: AudioContext | null = null;
 
@@ -24,16 +23,16 @@ export const playSound = (frequency: number = 440, duration: number = 0.1, volum
     const context = getAudioContext();
     const oscillator = context.createOscillator();
     const gainNode = context.createGain();
-    
+
     oscillator.connect(gainNode);
     gainNode.connect(context.destination);
-    
+
     oscillator.type = 'square';
     oscillator.frequency.value = frequency;
     gainNode.gain.value = volume;
-    
+
     oscillator.start();
-    
+
     setTimeout(() => {
       oscillator.stop();
     }, duration * 1000);
