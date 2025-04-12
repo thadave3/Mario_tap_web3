@@ -27,6 +27,8 @@ const GameCanvas = () => {
   const [coinJumping, setCoinJumping] = useState(false);
   const [popupRewards, setPopupRewards] = useState<{id: number, value: number, x: number, y: number, type: string}[]>([]);
   const [popupCounter, setPopupCounter] = useState(0);
+  const [showFusion, setShowFusion] = useState(false);
+  const [totalClicks, setTotalClicks] = useState(0);
   
   const { 
     gameActive,
