@@ -233,7 +233,7 @@ export class MemStorage implements IStorage {
     const updatedDomain = { 
       ...domain, 
       currentBid: bidAmount, 
-      bidCount: domain.bidCount + 1,
+      bidCount: (domain.bidCount || 0) + 1,
       ownerId: userId
     };
     this.domains.set(id, updatedDomain);
@@ -453,8 +453,5 @@ export class DatabaseStorage implements IStorage {
   }
 }
 
-// Uncomment to use DatabaseStorage
-// export const storage = new DatabaseStorage();
-
-// Use MemStorage for now
-export const storage = new MemStorage();
+// Use DatabaseStorage for persistent storage
+export const storage = new DatabaseStorage();

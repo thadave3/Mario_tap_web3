@@ -7,6 +7,11 @@ import {
   insertBidSchema,
   insertGameScoreSchema
 } from "@shared/schema";
+import { 
+  generateGameHint, 
+  analyzeGamePerformance, 
+  generateDomainDescription 
+} from "./openai";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   const httpServer = createServer(app);
@@ -254,6 +259,49 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({ message: "Reward redeemed successfully" });
     } catch (error) {
       res.status(400).json({ message: "Invalid user id" });
+    }
+  });
+
+  // AI Routes
+  app.get("/api/ai/game-hint", async (req, res) => {
+    const context = req.query.context as string || "general gaming";
+    try {
+      const hint = await generateGameHint(context);
+      res.json({ hint });
+    } catch (error) {
+      console.error("Error generating game hint:", error);
+      res.status(500).json({ message: "Failed to generate game hint" });
+    }
+  });
+
+  app.post("/api/ai/analyze-performance", async (req, res) => {
+    const schema = z.object({
+      score: z.number().int().min(0),
+      character: z.string().min(1)
+    });
+
+    try {
+      const { score, character } = schema.parse(req.body);
+      const analysis = await analyzeGamePerformance(score, character);
+      res.json(analysis);
+    } catch (error) {
+      console.error("Error analyzing game performance:", error);
+      res.status(400).json({ message: "Invalid performance data" });
+    }
+  });
+
+  app.post("/api/ai/generate-domain-description", async (req, res) => {
+    const schema = z.object({
+      domainName: z.string().min(1)
+    });
+
+    try {
+      const { domainName } = schema.parse(req.body);
+      const description = await generateDomainDescription(domainName);
+      res.json({ description });
+    } catch (error) {
+      console.error("Error generating domain description:", error);
+      res.status(400).json({ message: "Invalid domain name" });
     }
   });
 
