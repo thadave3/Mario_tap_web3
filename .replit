@@ -1,8 +1,6 @@
-audio = true
-audio = true
-modules = ["nodejs-20", "web", "postgresql-16"]
 run = "npm run dev"
 hidden = [".config", ".git", "generated-icon.png", "node_modules", "dist"]
+modules = ["nodejs-20:v12-20240429-92a185c", "web", "postgresql-16"]
 
 [nix]
 channel = "stable-24_05"
@@ -42,4 +40,3 @@ task = "packager.installForAll"
 task = "shell.exec"
 args = "npm run dev"
 waitForPort = 5000
-s
