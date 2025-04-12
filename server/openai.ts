@@ -3,6 +3,9 @@ import OpenAI from "openai";
 // Initialize OpenAI with API key from environment variables
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
+// Web3 expert assistant ID for advanced Web3 functionality
+const WEB3_EXPERT_ASSISTANT_ID = "asst_b1BcCL2OfO4vUyvHXAq1sYHd";
+
 // Function to generate an AI-powered game hint or tip
 export async function generateGameHint(context: string): Promise<string> {
   try {
@@ -98,5 +101,115 @@ export async function generateDomainDescription(domainName: string): Promise<str
   } catch (error) {
     console.error("Error generating domain description:", error);
     return "A unique Web3 domain with unlimited potential.";
+  }
+}
+
+// Function to get Web3 expert advice for cryptocurrency and blockchain questions
+export async function getWeb3ExpertAdvice(
+  question: string,
+  websiteUrl: string = "https://marioblockchain.app"
+): Promise<{
+  advice: string;
+  resources?: string[];
+}> {
+  try {
+    // Create a thread to interact with the assistant
+    const thread = await openai.beta.threads.create();
+
+    // Add user message to the thread
+    await openai.beta.threads.messages.create(thread.id, {
+      role: "user",
+      content: question
+    });
+
+    // Run the assistant on the thread with specific parameters aligned with the assistant's configuration
+    const run = await openai.beta.threads.runs.create(thread.id, {
+      assistant_id: WEB3_EXPERT_ASSISTANT_ID,
+      model: "gpt-4o", // the newest OpenAI model is "gpt-4o" which was released May 13, 2024
+      instructions: "You are addressing a user of a Mario-themed Web3 gaming platform. Keep your advice relevant to cryptocurrency, NFTs, and blockchain gaming. Explain concepts in simple terms.",
+      tools: [{
+        type: "function",
+        function: {
+          name: "getContextFromWebsite",
+          description: "Gets context from the Mario blockchain website",
+          parameters: {
+            type: "object",
+            properties: {
+              website_url: {
+                type: "string",
+                description: "The URL of the website"
+              },
+              issue_description: {
+                type: "string",
+                description: "Description of the Web3 issue or question"
+              },
+              additional_context: {
+                type: "string",
+                description: "Any additional context about the user's blockchain gaming experience"
+              }
+            },
+            required: ["website_url", "issue_description"]
+          }
+        }
+      }],
+      tool_choice: {
+        type: "function",
+        function: {
+          name: "getContextFromWebsite"
+        }
+      },
+    });
+
+    // Wait for the run to complete
+    let runStatus = await openai.beta.threads.runs.retrieve(thread.id, run.id);
+    while (runStatus.status !== "completed") {
+      if (runStatus.status === "failed" || runStatus.status === "cancelled") {
+        throw new Error(`Run ${runStatus.status}: ${runStatus.last_error}`);
+      }
+      
+      // Add a small delay before checking again
+      await new Promise(resolve => setTimeout(resolve, 500));
+      runStatus = await openai.beta.threads.runs.retrieve(thread.id, run.id);
+    }
+
+    // Get the messages from the thread
+    const messages = await openai.beta.threads.messages.list(thread.id);
+    
+    // Find the assistant's response
+    const assistantMessages = Array.from(messages.data)
+      .filter(message => message.role === "assistant")
+      .sort((a, b) => {
+        const aTime = new Date(a.created_at * 1000).getTime();
+        const bTime = new Date(b.created_at * 1000).getTime();
+        return bTime - aTime; // Sort descending (newest first)
+      });
+
+    if (assistantMessages.length === 0) {
+      throw new Error("No response from Web3 expert assistant");
+    }
+
+    const latestMessage = assistantMessages[0];
+    
+    // Process message content
+    let advice = "";
+    let resources: string[] = [];
+    
+    if (latestMessage.content && latestMessage.content.length > 0) {
+      for (const contentPart of latestMessage.content) {
+        if (contentPart.type === "text") {
+          advice += contentPart.text.value;
+        }
+      }
+    }
+    
+    return {
+      advice: advice || "I couldn't analyze your Web3 question at this time.",
+      resources
+    };
+  } catch (error) {
+    console.error("Error getting Web3 expert advice:", error);
+    return {
+      advice: "Unable to provide Web3 expert advice at this moment. Please try again later."
+    };
   }
 }

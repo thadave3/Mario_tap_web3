@@ -5,6 +5,7 @@ import { useGame } from '@/context/GameContext';
 import Coin from './Coin';
 import PixelButton from './PixelButton';
 import PixelBorder from './PixelBorder';
+import Web3Expert from './Web3Expert';
 import { type Domain } from '@shared/schema';
 import { useToast } from '@/hooks/use-toast';
 

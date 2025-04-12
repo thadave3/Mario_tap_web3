@@ -10,7 +10,8 @@ import {
 import { 
   generateGameHint, 
   analyzeGamePerformance, 
-  generateDomainDescription 
+  generateDomainDescription,
+  getWeb3ExpertAdvice
 } from "./openai";
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -302,6 +303,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error generating domain description:", error);
       res.status(400).json({ message: "Invalid domain name" });
+    }
+  });
+  
+  // Web3 Expert Assistant route
+  app.post("/api/ai/web3-advice", async (req, res) => {
+    const schema = z.object({
+      question: z.string().min(3)
+    });
+    
+    try {
+      const { question } = schema.parse(req.body);
+      const advice = await getWeb3ExpertAdvice(question);
+      res.json(advice);
+    } catch (error) {
+      console.error("Error getting Web3 expert advice:", error);
+      res.status(400).json({ message: "Failed to get Web3 advice" });
     }
   });
 
