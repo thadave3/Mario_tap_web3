@@ -39,4 +39,19 @@ task = "packager.installForAll"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "npm run dev"
-waitForPort = 5000
+waitForPort = 5000 
+const createAudio = (src) => {
+  const audio = new Audio(`data:audio/mp3;base64,${src}`);
+  audio.addEventListener('error', (e) => {
+      console.error("Audio error: ", e);
+    },
+    false
+  );
+  return audio;
+};
+
+const playAudio = (src) => {
+  const audio = createAudio(src);
+  audio.play();
+  return audio;
+};
