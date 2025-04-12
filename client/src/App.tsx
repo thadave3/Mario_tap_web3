@@ -27,7 +27,7 @@ function Router() {
 
 function App() {
   useEffect(() => {
-    // Initialize audio system
+    // Initialize audio system on app load
     initAudio();
   }, []);
 

@@ -21,14 +21,27 @@ const coinSound = createAudio(COIN_SOUND);
 const bonusSound = createAudio(BONUS_SOUND);
 const startSound = createAudio(START_SOUND);
 
+import { useEffect, useRef, useState } from 'react';
+import { useGame } from '@/context/GameContext';
+import PixelButton from './PixelButton';
+import PixelBorder from './PixelBorder';
+import CryptoFusion from './CryptoFusion';
+import { playCoinSound, playJumpSound, resumeAudioContext } from '../lib/audioContext';
+
+// Import for AI-powered suggestions
+import { useQuery } from '@tanstack/react-query';
+
 const GameCanvas = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const coinRef = useRef<HTMLDivElement>(null);
+  const gameAreaRef = useRef<HTMLDivElement>(null);
   const [coinJumping, setCoinJumping] = useState(false);
   const [popupRewards, setPopupRewards] = useState<{id: number, value: number, x: number, y: number, type: string}[]>([]);
   const [popupCounter, setPopupCounter] = useState(0);
   const [showFusion, setShowFusion] = useState(false);
   const [totalClicks, setTotalClicks] = useState(0);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [aiTip, setAiTip] = useState("");
   
   const { 
     gameActive,
@@ -40,19 +53,67 @@ const GameCanvas = () => {
     luckLevel
   } = useGame();
   
+  // Fetch AI tip using OpenAI
+  const { data: aiHintData } = useQuery({
+    queryKey: ['gameHint', powerLevel, luckLevel, totalClicks],
+    queryFn: async () => {
+      const context = `power level ${powerLevel}, luck level ${luckLevel}, clicks ${totalClicks}`;
+      const response = await fetch(`/api/ai/game-hint?context=${encodeURIComponent(context)}`);
+      if (!response.ok) throw new Error('Failed to fetch hint');
+      return response.json();
+    },
+    enabled: gameActive,
+    refetchInterval: 30000, // Refresh every 30 seconds during gameplay
+    refetchOnWindowFocus: false
+  });
+
+  useEffect(() => {
+    if (aiHintData?.hint) {
+      setAiTip(aiHintData.hint);
+    }
+  }, [aiHintData]);
+
+  // Toggle fullscreen mode
+  const toggleFullscreen = () => {
+    const gameElement = gameAreaRef.current;
+    if (!gameElement) return;
+
+    if (!isFullscreen) {
+      if (gameElement.requestFullscreen) {
+        gameElement.requestFullscreen();
+      }
+    } else {
+      if (document.exitFullscreen) {
+        document.exitFullscreen();
+      }
+    }
+  };
+
+  // Monitor fullscreen state
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    return () => {
+      document.removeEventListener('fullscreenchange', handleFullscreenChange);
+    };
+  }, []);
+  
   // Start game with sound
   const handleStartGame = () => {
-    startSound.play().catch(e => console.log("Sound play error:", e));
+    playJumpSound();
+    resumeAudioContext();
     startGame();
   };
   
-  // Handle coin click with improved feedback
   // Function to handle fusion event completion
   const handleFusionComplete = () => {
     setShowFusion(false);
     
     // Give a special bonus for completing fusion
-    const quantumBonus = 50 * powerLevel * luckLevel;
+    const quantumBonus = 100 * powerLevel * luckLevel;
     incrementScore(quantumBonus);
     
     // Show a special popup for the quantum bonus
@@ -77,7 +138,7 @@ const GameCanvas = () => {
 
   // Check if we should trigger fusion event based on click count
   useEffect(() => {
-    if (totalClicks >= 15 && gameActive && !showFusion) {
+    if (totalClicks >= 10 && gameActive && !showFusion) {
       setShowFusion(true);
       setTotalClicks(0);
     }
@@ -98,7 +159,8 @@ const GameCanvas = () => {
     setTotalClicks(prev => prev + 1);
     
     // Play coin sound
-    coinSound.play().catch(e => console.log("Sound play error:", e));
+    playCoinSound();
+    resumeAudioContext();
     
     // Add animation effect
     setCoinJumping(true);
@@ -115,17 +177,17 @@ const GameCanvas = () => {
       y = Math.random() * rect.height;
     }
     
-    // Determine crypto type randomly
+    // Determine crypto type randomly with improved luck factor
     const cryptoTypes = ['bitcoin', 'ethereum', 'dogecoin', 'bnb', 'coin'];
     const cryptoType = cryptoTypes[Math.floor(Math.random() * cryptoTypes.length)];
     
-    // Show popup reward
-    const baseValue = powerLevel;
-    setPopupCounter(prev => prev + 1);
+    // Show popup reward with enhanced value based on player stats
+    const baseValue = powerLevel * (Math.floor(Math.random() * 3) + 1);
+    const uniqueId = Date.now() + Math.floor(Math.random() * 1000);
     setPopupRewards(prev => [
       ...prev, 
       { 
-        id: popupCounter, 
+        id: uniqueId, 
         value: baseValue, 
         x, 
         y, 
@@ -135,23 +197,22 @@ const GameCanvas = () => {
     
     // Remove popup after animation
     setTimeout(() => {
-      setPopupRewards(prev => prev.filter(r => r.id !== popupCounter));
+      setPopupRewards(prev => prev.filter(r => r.id !== uniqueId));
     }, 1000);
     
     // Increment score based on power level
-    incrementScore();
+    incrementScore(baseValue);
     
-    // Random bonus based on luck
-    if (Math.random() < (0.05 * luckLevel)) {
+    // Enhanced random bonus based on luck
+    if (Math.random() < (0.1 * luckLevel)) {
       // Play bonus sound for special rewards
-      bonusSound.play().catch(e => console.log("Sound play error:", e));
+      playJumpSound();
       
-      const bonusValue = 5 * luckLevel;
+      const bonusValue = 10 * luckLevel;
       incrementScore(bonusValue);
       
       // Show bonus popup
-      setPopupCounter(prev => prev + 1);
-      const bonusId = popupCounter + 1;
+      const bonusId = Date.now() + Math.floor(Math.random() * 1000) + 1;
       setPopupRewards(prev => [
         ...prev, 
         { 
@@ -191,16 +252,35 @@ const GameCanvas = () => {
   };
 
   return (
-    <div className="text-center">
+    <div className="text-center" ref={gameAreaRef}>
       {/* Crypto Fusion Animation - shows only when triggered */}
       <CryptoFusion 
         active={showFusion} 
         onComplete={handleFusionComplete} 
       />
       
-      <p className="font-pixel text-xl text-[#E52521] mb-4">TAP TO MINE CRYPTO COINS</p>
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="font-pixel text-xl text-[#E52521]">CRYPTO MINER</h2>
+        <button 
+          onClick={toggleFullscreen}
+          className="bg-black bg-opacity-50 p-2 rounded text-white font-pixel text-xs"
+        >
+          {isFullscreen ? "EXIT FULLSCREEN" : "FULLSCREEN"}
+        </button>
+      </div>
       
-      <div className="relative mb-8 mx-auto w-32 h-32">
+      {/* AI Tip Banner */}
+      {aiTip && (
+        <div className="bg-[#9C27B0] bg-opacity-70 p-2 rounded-lg mb-4 animate-pulse">
+          <p className="font-retro text-white text-sm">💡 TIP: {aiTip}</p>
+        </div>
+      )}
+      
+      {/* Main interactive coin area - MUCH LARGER! */}
+      <div 
+        className="relative mx-auto w-full h-56 mb-4 bg-[#000] bg-opacity-20 rounded-lg flex items-center justify-center cursor-pointer"
+        onClick={handleCoinClick}
+      >
         {/* Popup rewards */}
         {popupRewards.map((reward) => (
           <div 
@@ -219,11 +299,10 @@ const GameCanvas = () => {
           </div>
         ))}
       
-        {/* Main coin that can be clicked */}
+        {/* Main coin that can be clicked - centered in the large area */}
         <div 
           ref={coinRef}
-          className={`absolute inset-0 ${!coinJumping ? 'animate-float-bob' : 'animate-jump'} cursor-pointer`}
-          onClick={handleCoinClick}
+          className={`${!coinJumping ? 'animate-float-bob' : 'animate-jump'} w-40 h-40`}
         >
           <svg 
             className="w-full h-full"
@@ -232,9 +311,12 @@ const GameCanvas = () => {
           >
             <circle cx="64" cy="64" r="60" fill="#FFCF40" stroke="#000" strokeWidth="4" />
             <circle cx="64" cy="64" r="50" fill="#FFDF80" />
-            <text x="64" y="75" textAnchor="middle" fill="#000" fontFamily="Press Start 2P" fontSize="24">{totalClicks >= 10 ? "Q+" : "$"}</text>
+            <text x="64" y="75" textAnchor="middle" fill="#000" fontFamily="Press Start 2P" fontSize="24">{totalClicks >= 8 ? "Q+" : "$"}</text>
             <circle cx="44" cy="45" r="5" fill="#FFFFFF" fillOpacity="0.7" />
           </svg>
+        </div>
+        <div className="absolute bottom-2 left-0 right-0 text-center">
+          <p className="font-retro text-white text-sm">Tap anywhere to mine coins!</p>
         </div>
       </div>
       
@@ -246,7 +328,7 @@ const GameCanvas = () => {
         {gameActive ? "MINING..." : "START MINING"}
       </PixelButton>
       
-      <div className="mt-8 flex justify-center space-x-4">
+      <div className="mt-4 flex justify-center space-x-4">
         <PixelBorder background="red" className="p-2 flex flex-col items-center transition transform hover:scale-105">
           <span className="font-retro text-white">POWER</span>
           <span className="font-pixel text-white text-sm">x{powerLevel}</span>
@@ -263,34 +345,31 @@ const GameCanvas = () => {
       
       {/* Fusion progress indicator */}
       {gameActive && (
-        <div className="mt-8 bg-black bg-opacity-30 p-4 rounded-lg">
-          <h3 className="font-pixel text-white text-sm mb-2">QUANTUM+ FUSION EVENT</h3>
+        <div className="mt-4 bg-black bg-opacity-30 p-2 rounded-lg">
+          <h3 className="font-pixel text-white text-xs mb-1">QUANTUM+ FUSION EVENT</h3>
           <div className="flex flex-col items-center">
             <div className="flex justify-center items-center space-x-2 mb-2">
-              <div className="bg-[#F7931A] p-2 rounded-full text-white font-bold">₿</div>
-              <div className="bg-[#627EEA] p-2 rounded-full text-white font-bold">Ξ</div>
-              <div className="bg-[#C2A633] p-2 rounded-full text-white font-bold">Ð</div>
-              <div className="bg-[#F3BA2F] p-2 rounded-full text-white font-bold">BNB</div>
-              <div className="w-24 h-6 bg-[#8D6E63] relative">
-                <div className="absolute top-1 w-full h-4 bg-[#6D4C41]"></div>
-              </div>
-              <div className="bg-[#9C27B0] p-2 rounded-full text-white font-bold animate-pulse">Q+</div>
+              <div className="bg-[#F7931A] p-1 rounded-full text-white text-xs font-bold">₿</div>
+              <div className="bg-[#627EEA] p-1 rounded-full text-white text-xs font-bold">Ξ</div>
+              <div className="bg-[#C2A633] p-1 rounded-full text-white text-xs font-bold">Ð</div>
+              <div className="bg-[#9C27B0] p-1 rounded-full text-white text-xs font-bold animate-pulse">Q+</div>
             </div>
-            <p className="font-retro text-white text-xs mb-2">Tap coins to trigger Quantum+ fusion!</p>
             
             {/* Progress bar */}
-            <div className="w-full bg-gray-800 h-4 rounded-full overflow-hidden">
+            <div className="w-full bg-gray-800 h-3 rounded-full overflow-hidden">
               <div 
                 className="bg-gradient-to-r from-[#F7931A] via-[#627EEA] to-[#9C27B0] h-full transition-all duration-300" 
-                style={{ width: `${(totalClicks / 15) * 100}%` }}
+                style={{ width: `${(totalClicks / 10) * 100}%` }}
               ></div>
             </div>
-            <p className="font-pixel text-white text-xs mt-1">{totalClicks}/15 taps until fusion</p>
+            <p className="font-pixel text-white text-xs mt-1">{totalClicks}/10 taps until fusion</p>
           </div>
         </div>
       )}
     </div>
   );
 };
+
+export default GameCanvas;
 
 export default GameCanvas;

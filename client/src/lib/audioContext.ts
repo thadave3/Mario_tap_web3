@@ -1,5 +1,5 @@
 
-// Simple audio context manager for the application
+// Audio context manager for the game
 let audioContext: AudioContext | null = null;
 
 export const getAudioContext = (): AudioContext => {
@@ -7,7 +7,7 @@ export const getAudioContext = (): AudioContext => {
     try {
       audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
     } catch (error) {
-      console.warn('AudioContext not supported in this browser', error);
+      console.warn('AudioContext not supported', error);
       // Create a mock audio context as fallback
       audioContext = {
         createOscillator: () => ({ connect: () => {}, start: () => {}, stop: () => {} }),
