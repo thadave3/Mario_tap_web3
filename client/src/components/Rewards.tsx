@@ -15,6 +15,8 @@ const Rewards = () => {
   // Fetch rewards
   const { data: rewards, isLoading, refetch } = useQuery<Reward[]>({
     queryKey: ['/api/rewards'],
+    throwOnError: false,
+    retry: 1
   });
   
   // Redeem reward mutation

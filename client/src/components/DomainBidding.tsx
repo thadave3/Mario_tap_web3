@@ -16,6 +16,8 @@ const DomainBidding = () => {
   const { data: domains, isLoading, refetch } = useQuery<Domain[]>({
     queryKey: ['/api/domains'],
     refetchInterval: 10000, // Refetch every 10 seconds to update time
+    retry: 1,
+    throwOnError: false
   });
   
   // Place bid mutation

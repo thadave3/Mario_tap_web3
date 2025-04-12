@@ -61,21 +61,33 @@ const ProfileSetup = () => {
     
     // Update character in game context and backend if logged in
     setCharacter(id);
+    
+    // Only try to update character on the backend if user is logged in
     if (userId) {
-      apiRequest('PATCH', `/api/users/${userId}/character`, { character: id })
-        .then(() => {
-          toast({
-            title: "Character updated",
-            description: `You're now playing as ${id}!`,
+      try {
+        apiRequest('PATCH', `/api/users/${userId}/character`, { character: id })
+          .then(() => {
+            toast({
+              title: "Character updated",
+              description: `You're now playing as ${id}!`,
+            });
+          })
+          .catch(error => {
+            console.error("Character update error:", error);
+            // Still indicate success to the user since the local state was updated
+            toast({
+              title: "Character updated locally",
+              description: `You're now playing as ${id}! (Saving to server failed)`,
+              variant: "default"
+            });
           });
-        })
-        .catch(error => {
-          toast({
-            title: "Error updating character",
-            description: "Could not update your character. Please try again.",
-            variant: "destructive"
-          });
+      } catch (error) {
+        console.error("Character update error:", error);
+        toast({
+          title: "Playing as new character",
+          description: `You're now playing as ${id} locally!`,
         });
+      }
     }
   };
   
