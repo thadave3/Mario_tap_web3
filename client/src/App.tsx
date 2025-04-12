@@ -9,6 +9,8 @@ import GamePage from "@/pages/GamePage";
 import DomainsPage from "@/pages/DomainsPage";
 import ProfilePage from "@/pages/ProfilePage";
 import RewardsPage from "@/pages/RewardsPage";
+import { useEffect } from "react";
+import { initAudio } from "./lib/audioContext";
 
 function Router() {
   return (
@@ -24,6 +26,11 @@ function Router() {
 }
 
 function App() {
+  useEffect(() => {
+    // Initialize audio system
+    initAudio();
+  }, []);
+
   return (
     <QueryClientProvider client={queryClient}>
       <GameProvider>
