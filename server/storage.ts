@@ -6,6 +6,8 @@ import {
   type GameScore, type InsertGameScore,
   type Reward, type InsertReward
 } from "@shared/schema";
+import { db } from "./db";
+import { eq, desc } from "drizzle-orm";
 
 export interface IStorage {
   // User methods
@@ -174,6 +176,7 @@ export class MemStorage implements IStorage {
       coins: 100, // Start with 100 coins
       level: 1,
       experience: 0,
+      character: insertUser.character || 'mario', // Ensure character has a default
       socialLinks: {},
       createdAt: now
     };
@@ -301,4 +304,157 @@ export class MemStorage implements IStorage {
   }
 }
 
+// Database Storage implementation
+export class DatabaseStorage implements IStorage {
+  // User methods
+  async getUser(id: number): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user || undefined;
+  }
+
+  async getUserByUsername(username: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.username, username));
+    return user || undefined;
+  }
+
+  async createUser(insertUser: InsertUser): Promise<User> {
+    // Add defaults for user and ensure character is set
+    const userWithDefaults = {
+      ...insertUser,
+      coins: 100, // Start with 100 coins
+      level: 1,
+      experience: 0,
+      character: insertUser.character || 'mario', // Ensure character has a default
+      socialLinks: {}
+    };
+    
+    const [user] = await db
+      .insert(users)
+      .values(userWithDefaults)
+      .returning();
+    return user;
+  }
+  
+  async updateUserCoins(id: number, coins: number): Promise<User | undefined> {
+    const [user] = await db
+      .update(users)
+      .set({ coins })
+      .where(eq(users.id, id))
+      .returning();
+    return user || undefined;
+  }
+  
+  async updateUserCharacter(id: number, character: string): Promise<User | undefined> {
+    const [user] = await db
+      .update(users)
+      .set({ character })
+      .where(eq(users.id, id))
+      .returning();
+    return user || undefined;
+  }
+  
+  // Domain methods
+  async getDomains(): Promise<Domain[]> {
+    return await db.select().from(domains);
+  }
+  
+  async getDomain(id: number): Promise<Domain | undefined> {
+    const [domain] = await db.select().from(domains).where(eq(domains.id, id));
+    return domain || undefined;
+  }
+  
+  async createDomain(insertDomain: InsertDomain): Promise<Domain> {
+    const [domain] = await db
+      .insert(domains)
+      .values({
+        ...insertDomain,
+        currentBid: 0,
+        bidCount: 0
+      })
+      .returning();
+    return domain;
+  }
+  
+  async updateDomainBid(id: number, bidAmount: number, userId: number): Promise<Domain | undefined> {
+    // First get the current domain to access the bidCount
+    const currentDomain = await this.getDomain(id);
+    if (!currentDomain) return undefined;
+    
+    const [domain] = await db
+      .update(domains)
+      .set({ 
+        currentBid: bidAmount, 
+        ownerId: userId,
+        bidCount: (currentDomain.bidCount || 0) + 1 
+      })
+      .where(eq(domains.id, id))
+      .returning();
+    return domain || undefined;
+  }
+  
+  // Bid methods
+  async createBid(insertBid: InsertBid): Promise<Bid> {
+    const [bid] = await db
+      .insert(bids)
+      .values(insertBid)
+      .returning();
+    return bid;
+  }
+  
+  async getBidsByDomain(domainId: number): Promise<Bid[]> {
+    return await db
+      .select()
+      .from(bids)
+      .where(eq(bids.domainId, domainId))
+      .orderBy(desc(bids.bidAmount));
+  }
+  
+  // Game score methods
+  async getTopGameScores(limit: number): Promise<GameScore[]> {
+    return await db
+      .select()
+      .from(gameScores)
+      .orderBy(desc(gameScores.score))
+      .limit(limit);
+  }
+  
+  async createGameScore(insertGameScore: InsertGameScore): Promise<GameScore> {
+    const [score] = await db
+      .insert(gameScores)
+      .values(insertGameScore)
+      .returning();
+    return score;
+  }
+  
+  async getUserGameScores(userId: number): Promise<GameScore[]> {
+    return await db
+      .select()
+      .from(gameScores)
+      .where(eq(gameScores.userId, userId))
+      .orderBy(desc(gameScores.score));
+  }
+  
+  // Reward methods
+  async getRewards(): Promise<Reward[]> {
+    return await db.select().from(rewards);
+  }
+  
+  async getReward(id: number): Promise<Reward | undefined> {
+    const [reward] = await db.select().from(rewards).where(eq(rewards.id, id));
+    return reward || undefined;
+  }
+  
+  async createReward(insertReward: InsertReward): Promise<Reward> {
+    const [reward] = await db
+      .insert(rewards)
+      .values(insertReward)
+      .returning();
+    return reward;
+  }
+}
+
+// Uncomment to use DatabaseStorage
+// export const storage = new DatabaseStorage();
+
+// Use MemStorage for now
 export const storage = new MemStorage();
