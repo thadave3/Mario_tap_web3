@@ -299,7 +299,11 @@ const ProfileSetup = () => {
             <h3 className="font-pixel text-[#FBD000] text-xl mb-6">CHARACTER SELECTION</h3>
             
             <div className="grid grid-cols-3 gap-4 mb-6">
-              {characters.map((char) => renderCharacter(char.id, char.name))}
+              {characters.map((char) => (
+                <div key={char.id}>
+                  {renderCharacter(char.id, char.name)}
+                </div>
+              ))}
               
               <div className="bg-[#FBD000] p-3 rounded-lg text-center cursor-pointer transition-transform hover:scale-105 flex items-center justify-center">
                 <span className="font-pixel text-2xl">+</span>
