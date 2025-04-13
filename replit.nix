@@ -1,5 +1,36 @@
 {pkgs}: {
   deps = [
+    pkgs.rPackages.MatrixEQTL
+    pkgs.linuxPackages_4_9.nvidia_x11
+    pkgs.gnomeExtensions.impatience
+    pkgs.rPackages.trimcluster
+    pkgs.mdevd
+    pkgs.quicklispPackagesSBCL.uuid
+    pkgs.quattrocento
+    pkgs.rPackages.klsh
+    pkgs.haskellPackages.rivet-autoimporter
+    pkgs.rPackages.SMUT
+    pkgs.python38Packages.iaqualink
+    pkgs.libtelnet
+    pkgs.rPackages.MPkn
+    pkgs.haskellPackages.servant-rawm-client
+    pkgs.haskellPackages.slugify
+    pkgs.rPackages.rccmisc
+    pkgs.plasma5Packages.kolourpaint
+    pkgs.rPackages.datadigest
+    pkgs.rPackages.stlcsb
+    pkgs.haskellPackages.yesod-crud
+    pkgs.emacs27Packages.helm-jstack
+    pkgs.perlPackages.TieRefHash
+    pkgs.perlPackages.SmartComments
+    pkgs.luaPackages.luassert
+    pkgs.rPackages.nontarget
+    pkgs.emacs27Packages.dired-git
+    pkgs.haskellPackages.meep
+    pkgs.haskellPackages.hpath-filepath
+    pkgs.nodePackages_latest.webtorrent-cli
+    pkgs.libsForQt514.quazip
     pkgs.postgresql
   ];
 }
+,

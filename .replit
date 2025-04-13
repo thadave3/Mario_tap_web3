@@ -37,21 +37,67 @@ agentRequireRestartOnSave = false
 task = "packager.installForAll"
 
 [[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "npm run dev"
-waitForPort = 5000 
 const createAudio = (src) => {
-  const audio = new Audio(`data:audio/mp3;base64,${src}`);
-  audio.addEventListener('error', (e) => {
-      console.error("Audio error: ", e);
+const audio = new Audio(`data:audio/mp3;base64,${src}`);
+audio.addEventListener('error', (e) => {
+console.error("Audio error: ", e);
     },
-    false
+false
   );
-  return audio;
+return audio;
 };
 
 const playAudio = (src) => {
-  const audio = createAudio(src);
-  audio.play();
+const audio = createAudio(src);
+audio.play();
   return audio;
 };
+run app,d
+[" """[npm run]]task = "shell.exec"
+node -v
+npm -vrun = "npm run dev"
+args = "npm run dev"
+waitForPort = 5000
+hidden = [".config", ".git", "generated-icon.png", "node_modules", "dist"]
+modules = ["nodejs-20:v12-20240429-92a185c", "web", "postgresql-16"]
+
+[nix]
+channel = "stable-24_05"
+
+[deployment]
+deploymentTarget = "autoscale"
+build = ["npm", "run", "build"]
+run = ["npm", "run", "start"]
+
+[[ports]]
+localPort = 5000
+externalPort = 80
+
+[workflows]
+runButton = "Project"
+
+[[workflows.workflow]]
+name = "Project"
+mode = "parallel"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Start application"
+
+[[workflows.workflow]]
+name = "Start application"
+author = "agent"
+
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
+
+[[workflows.workflow.tasks]]
+task = "packager.installForAll"
+
+[[workflows.workflow.tasks]]
+run npm
+task = "shell.exec"
+args = "npm run dev"
+waitForPort = 5000
+ass
